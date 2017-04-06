@@ -21,8 +21,8 @@ function string:split(sep)
 end
 
 -- Корневые папки - "сырая" и "готовая"
-local damp_root = "/home/vladislav/data(damp)/"
-local finished_root = "/home/vladislav/CLionProjects/LuaTorchProjects/DataLoadProject/data(finished)/"
+local damp_root = "/home/vladislav/300WLP/data(damp)/"
+local finished_root = "/home/vladislav/300WLP/data(finished)/"
 
 -- Соответствующие дескрипторы
 local damp_f = io.open(damp_root .. "config.txt", "r")
