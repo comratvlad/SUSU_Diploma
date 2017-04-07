@@ -13,8 +13,8 @@ const string data_path = "/home/vladislav/CLionProjects/LuaTorchProjects/DataLoa
 void push_data() {
     // Чтение файла с данными о путях к файлам
     ifstream config(data_path + "/config.txt");
-    //ofstream out_im("/home/vladislav/CLionProjects/LuaTorchProjects/DataLoadProject/images.bat",ios::binary|ios::out); //Открыли для записи в бинарном режиме
-    //ofstream out_pts("/home/vladislav/CLionProjects/LuaTorchProjects/DataLoadProject/points.bat",ios::binary|ios::out); //Открыли для записи в бинарном режиме
+    //ofstream out_im("/home/vladislav/CLionProjects/LuaTorchProjects/DataLoadProject/images.bat",ios::binary|ios::out); 
+    //ofstream out_pts("/home/vladislav/CLionProjects/LuaTorchProjects/DataLoadProject/points.bat",ios::binary|ios::out); 
 
     //int s = 0;
     int n; // Кол-во оригинальных изображений
@@ -41,7 +41,7 @@ void push_data() {
             }
             file.close();
 
-            //out_im.write((char*)&img,sizeof img); //Записали объект А в открытый файл
+            //out_im.write((char*)&img,sizeof img);
             //out_pts.write((char*)&cur_points,sizeof cur_points);
             images.push_back(img);
             points.push_back(cur_points);
@@ -58,6 +58,6 @@ void push_data() {
 int main() {
     srand(time(0));
     push_data();
-    cout << "runtime = " << clock()/1000.0 << endl; // время работы программы
+    cout << "runtime = " << clock()/1000.0 << endl;
     return 0;
 }
