@@ -1,9 +1,16 @@
+-- ==================================
+-- constructor.lua
+--
+-- Модуль для более удобного и читаемого создания CNN
+--
+-- ==================================
+
 require 'torch' -- torch
 require 'nn'
---require 'cunn'
---require 'cutorch'
+require 'cunn'
+require 'cutorch'
 
--- require 'cudnn';
+require 'cudnn';
 do
 	CUDNN_AVAILABLE = false;
 	local CUDNN_ERROR;
