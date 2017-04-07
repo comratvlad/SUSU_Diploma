@@ -46,7 +46,7 @@ function model.makeDeepCNN(mm)
 	mm = mm or 1
 
 	local result = {}
-  local iv = inception_variants(mm);
+  	local iv = inception_variants(mm);
   
 	result.network = construct_structure({'seq',
       {'conv', 1, 4, 3, 3, 1, 1, 0, 0}, {'activation', 4},
@@ -70,22 +70,22 @@ function model.makeDeepCNN(mm)
         -- {'wv'}, -- 128x1x1
     })
 
-    result.network:add(nn.View(512))
-    result.network:add(nn.Dropout(0.4))
+    	result.network:add(nn.View(512))
+    	result.network:add(nn.Dropout(0.4))
 
-    result.network:add(nn.Linear(512, 256));
-    result.network:add(nn.View(16));
-    result.network:add(nn.Normalize(2));
-    result.network:add(nn.View(256));
+    	result.network:add(nn.Linear(512, 256));
+   	result.network:add(nn.View(16));
+   	result.network:add(nn.Normalize(2));
+   	result.network:add(nn.View(256));
 
-    result.network:add(nn.Linear(256, 128));
-    result.network:add(nn.BatchNormalization(128));
-    result.network:add(nn.ReLU(false))
+	result.network:add(nn.Linear(256, 128));
+   	result.network:add(nn.BatchNormalization(128));
+   	result.network:add(nn.ReLU(false))
 
-    result.network:add(nn.Linear(128, 30));
-    result.network:add(nn.View(2, 15));
+   	result.network:add(nn.Linear(128, 30));
+   	result.network:add(nn.View(2, 15));
   
-  local x = torch.Tensor():randn(8, (SOURCE_CHANNELS_COUNT or 1), 96, 96)
+  	local x = torch.Tensor():randn(8, (SOURCE_CHANNELS_COUNT or 1), 96, 96)
 
 	result.input_size = drop_minibatch_size( x:size() )
 	result.output_size = drop_minibatch_size( result.network:forward(x):size() )
