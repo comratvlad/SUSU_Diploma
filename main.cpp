@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <ctime>
 #include <opencv2/opencv.hpp>
 
@@ -59,26 +58,6 @@ void push_data() {
 int main() {
     srand(time(0));
     push_data();
-
     cout << "runtime = " << clock()/1000.0 << endl; // время работы программы
-    cv::imshow("img", images.at(0));
-    while(27 != (uchar) cv::waitKey());
-    cout << images.at(0);
     return 0;
 }
-
-
-
-//...
-
-// Запись в файл
-ofstream out_im(out_filepath_im, ios::binary | ios::out);
-ofstream out_pts(out_filepath_pts, ios::binary | ios::out);
-
-// Цикл по элементам выборки каким-то образом
-for (int i = 0; i < n; ++i) {
-
-    cv::Mat img = cv::imread(data_path + im_path);
-    vector<cv::Point2f> cur_points; // каким-то образом его заполнили точками
-    out_im.write((char*)&img,sizeof img);
-    out_pts.write((char*)&cur_points,sizeof cur_points);
