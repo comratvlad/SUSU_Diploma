@@ -118,13 +118,13 @@ int luaopen_data300wlp(lua_State *L)
             c_get_data
     );
 
-	lua_register(
-	        L,
-	        "hello",
-            hello
-	);
+    lua_register(
+	     L,
+	     "hello",
+             hello
+    );
 
-	return 0;
+    return 0;
 }
 
 } // extern "C"
