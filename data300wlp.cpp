@@ -73,7 +73,7 @@ int c_get_data(lua_State *L)
 // передадим его в lua-код и проверим
 int hello(lua_State *L)
 {
-    // Номер изображение
+    // Номер изображения
     int n = 77;
 
     // Определяем область памяти, куда нужно вернуть картинку
@@ -93,7 +93,7 @@ int hello(lua_State *L)
     // ее код закомментирован в конце файла
     write_vector_point2tensor(pts, output_pts);
 
-	return 0;
+    return 0;
 }
 
 // Регистрация функция для использования их в lua-коде
