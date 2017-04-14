@@ -18,7 +18,8 @@ vector< vector<cv::Point2f> > points;
 
 // ...
 const char cpp_data_path[] = "/home/vladislav/CLionProjects/LuaTorchProjects/DataLoadProject/300wlp(gray).dat";
-const int wlp_size = 61225;
+const int wlp_size = 3200;
+std::vector<int> rand_ind(wlp_size);
 
 // Инициализация данных выборки 300wlp
 int c_init(lua_State *L)
@@ -60,12 +61,31 @@ int c_init(lua_State *L)
 // Инициализация параметров аугментации
 int c_prepare_iteration(lua_State *L)
 {
+    for (int i = 0; i < wlp_size; i++) {
+        rand_ind.at(i) = i;
+    }
+    std::random_shuffle(rand_ind.begin(), rand_ind.end());
+
     return 0;
 }
 
 // Передача обработанных данных выборки для обучения
 int c_get_data(lua_State *L)
 {
+    const int i = lua_tonumber(L, 1);
+    const int j = lua_tonumber(L, 2);
+    const THFloatTensor* const output_img  = static_cast<THFloatTensor*>(luaT_toudata(L, 3, "torch.FloatTensor"));
+    const THFloatTensor* const output_pts  = static_cast<THFloatTensor*>(luaT_toudata(L, 4, "torch.FloatTensor"));
+
+    const int n = rand_ind.at(i + j - 2);
+
+    cv::Mat src = images.at(n);
+    src.convertTo(src, CV_32FC1);
+    vector<cv::Point2f> pts = points.at(n);
+
+    write_cv_mat2tensor(src, output_img);
+    write_vector_point2tensor(pts, output_pts);
+
     return 0;
 }
 
@@ -73,7 +93,7 @@ int c_get_data(lua_State *L)
 // передадим его в lua-код и проверим
 int hello(lua_State *L)
 {
-    // Номер изображения
+    // Номер изображение
     int n = 77;
 
     // Определяем область памяти, куда нужно вернуть картинку
@@ -93,7 +113,7 @@ int hello(lua_State *L)
     // ее код закомментирован в конце файла
     write_vector_point2tensor(pts, output_pts);
 
-    return 0;
+	return 0;
 }
 
 // Регистрация функция для использования их в lua-коде
@@ -118,13 +138,13 @@ int luaopen_data300wlp(lua_State *L)
             c_get_data
     );
 
-    lua_register(
-	     L,
-	     "hello",
-             hello
-    );
+	lua_register(
+	        L,
+	        "hello",
+            hello
+	);
 
-    return 0;
+	return 0;
 }
 
 } // extern "C"
