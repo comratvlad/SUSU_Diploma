@@ -1,11 +1,8 @@
--- =======================================================
--- dfun.lua
 --
--- Функции для работы с выборкой изображений лиц
--- и их антропометрических точек
+-- Пока что тут полно полезных функций
 --
--- =======================================================
 
+local mat = require 'matio'
 local image = require 'image'
 local torch = require 'torch'
 
@@ -21,7 +18,24 @@ function dfun.getPointedPic(pic, points, opt)
     -- По умолчанию - зеленые точки
     opt = opt or {color = {0, 255, 0},  size = 1 }
 
-    -- Если points - Tensor
+    -- Получение параметров изображения и валидация
+    assert(pic:nDimension() == 3, 'Wrong format of picture')
+    local nChannels = pic:size()[1]
+    local rows = pic:size()[2]
+    local cols = pic:size()[3]
+    assert(nChannels == 1 or nChannels == 3, 'Wrong format of picture')
+
+    -- Для функций пакета image необходимо трехканальное изображение
+    c_pic = torch.Tensor(3, rows, cols)
+
+    -- Преобразуем ч-б в трехканальное, если необходимо
+    if nChannels == 1 then
+        c_pic[1] = pic
+        c_pic[2] = pic
+        c_pic[3] = pic
+    end
+
+    -- Если points - Tensor преобразуем в таблицу
     if (type(points) ~= 'table') then
         points = torch.totable(points)
     end
@@ -35,11 +49,11 @@ function dfun.getPointedPic(pic, points, opt)
 
     -- Нанесение точек
     for i=1,num_points do
-        pic = image.drawText(pic, 'o', points[1][i] - 5, points[2][i] - 5, opt)
+        c_pic = image.drawText(c_pic, 'o', points[1][i] - 5, points[2][i] - 5, opt)
     end
 
     -- Возвращение изображения
-    return pic
+    return c_pic
 
 end
 
