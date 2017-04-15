@@ -22,9 +22,10 @@ const char cpp_data_path[] = "/home/vladislav/CLionProjects/LuaTorchProjects/Dat
 const int wlp_size = 6400;
 
 // Рандомизируемые параметры аугментации
-std::vector<int> rand_ind(wlp_size);    // 
-std::vector<int> rand_cont(wlp_size);   // 
-std::vector<int> rand_light(wlp_size);  // 
+std::vector<int> rand_ind(wlp_size);    //
+std::vector<int> rand_cont(wlp_size);   //
+std::vector<int> rand_light(wlp_size);  //
+std::vector<int> rand_rot(wlp_size);    //
 
 // Инициализация данных выборки 300wlp
 int c_init(lua_State *L)
@@ -72,12 +73,15 @@ int c_init(lua_State *L)
 int c_prepare_iteration(lua_State *L)
 {
     srand(time(0));
+    
     // Перемешивание порядка подачи элементов выборки
     std::random_shuffle(rand_ind.begin(), rand_ind.end());
 
+    // Рандомизация параметров аугментации
     for (int i = 0; i < wlp_size; i++) {
         rand_cont.at(i) = 1.0 + (rand() % 10) * 0.1;
         rand_light.at(i) = rand() % 100;
+        rand_rot.at(i) = rand() % 15;
     }
 
     return 0;
@@ -86,6 +90,7 @@ int c_prepare_iteration(lua_State *L)
 // Передача обработанных данных выборки для обучения
 int c_get_data(lua_State *L)
 {
+    // Получаем данные
     const int i = lua_tonumber(L, 1);
     const int j = lua_tonumber(L, 2);
     const THFloatTensor* const output_img  = static_cast<THFloatTensor*>(luaT_toudata(L, 3, "torch.FloatTensor"));
@@ -98,6 +103,12 @@ int c_get_data(lua_State *L)
     src = src * rand_cont.at(i + j - 2) + rand_light.at(i + j - 2);
     vector<cv::Point2f> pts = points.at(n);
 
+    // Поворот на случайный угол
+    cv::Mat rot = cv::getRotationMatrix2D(cv::Point2f(210/2, 210/2), rand_rot.at(i + j - 2), 1.0);
+    cv::warpAffine(src, src, rot, cv::Size(210, 210));
+    cv::transform(pts, pts, rot);
+
+    // Записываем обработанные данные в Tensor-ы
     write_cv_mat2tensor(src, output_img);
     write_vector_point2tensor(pts, output_pts);
 
