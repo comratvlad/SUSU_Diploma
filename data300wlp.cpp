@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ctime>
 #include <vector>
 #include <fstream>
 #include <opencv2/opencv.hpp>
@@ -18,12 +19,21 @@ vector< vector<cv::Point2f> > points;
 
 // ...
 const char cpp_data_path[] = "/home/vladislav/CLionProjects/LuaTorchProjects/DataLoadProject/300wlp(gray).dat";
-const int wlp_size = 3200;
-std::vector<int> rand_ind(wlp_size);
+const int wlp_size = 6400;
+
+// Рандомизируемые параметры аугментации
+std::vector<int> rand_ind(wlp_size);    // 
+std::vector<int> rand_cont(wlp_size);   // 
+std::vector<int> rand_light(wlp_size);  // 
 
 // Инициализация данных выборки 300wlp
 int c_init(lua_State *L)
 {
+
+    // Инициализация параметров аугментации
+    for (int i = 0; i < wlp_size; i++) {
+        rand_ind.at(i) = i;
+    }
 
     // Чтение файла с данными
     ifstream input(cpp_data_path, ios::binary|ios::in);
@@ -61,10 +71,14 @@ int c_init(lua_State *L)
 // Инициализация параметров аугментации
 int c_prepare_iteration(lua_State *L)
 {
-    for (int i = 0; i < wlp_size; i++) {
-        rand_ind.at(i) = i;
-    }
+    srand(time(0));
+    // Перемешивание порядка подачи элементов выборки
     std::random_shuffle(rand_ind.begin(), rand_ind.end());
+
+    for (int i = 0; i < wlp_size; i++) {
+        rand_cont.at(i) = 1.0 + (rand() % 10) * 0.1;
+        rand_light.at(i) = rand() % 100;
+    }
 
     return 0;
 }
@@ -81,6 +95,7 @@ int c_get_data(lua_State *L)
 
     cv::Mat src = images.at(n);
     src.convertTo(src, CV_32FC1);
+    src = src * rand_cont.at(i + j - 2) + rand_light.at(i + j - 2);
     vector<cv::Point2f> pts = points.at(n);
 
     write_cv_mat2tensor(src, output_img);
