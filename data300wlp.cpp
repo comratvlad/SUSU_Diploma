@@ -17,15 +17,16 @@ using namespace std;
 vector<cv::Mat> images;
 vector< vector<cv::Point2f> > points;
 
-// ...
+// Параметры обучения
 const char cpp_data_path[] = "/home/vladislav/CLionProjects/LuaTorchProjects/DataLoadProject/300wlp(gray).dat";
-const int wlp_size = 6400;
+const int wlp_size = 16000;
+const int test_size = 1600;
 
 // Рандомизируемые параметры аугментации
-std::vector<int> rand_ind(wlp_size);    //
-std::vector<int> rand_cont(wlp_size);   //
-std::vector<int> rand_light(wlp_size);  //
-std::vector<int> rand_rot(wlp_size);    //
+std::vector<int> rand_ind(wlp_size);    // Случайный порядок подачи элементов выборки
+std::vector<int> rand_cont(wlp_size);   // Случайный коэффициент констрастности
+std::vector<int> rand_light(wlp_size);  // Случайный аддитивный элемент яркости
+std::vector<int> rand_rot(wlp_size);    // Случайный угол поворта изображения
 
 // Инициализация данных выборки 300wlp
 int c_init(lua_State *L)
@@ -39,7 +40,7 @@ int c_init(lua_State *L)
     // Чтение файла с данными
     ifstream input(cpp_data_path, ios::binary|ios::in);
 
-    for (int i = 0; i < wlp_size; i++) {
+    for (int i = 0; i < wlp_size + test_size; i++) {
 
         // Чтение изображения
         int type, rows, cols;
@@ -65,15 +66,16 @@ int c_init(lua_State *L)
     input.close();
 
     lua_pushnumber(L, wlp_size);
+    lua_pushnumber(L, test_size);
 
-    return 1;
+    return 2;
 }
 
 // Инициализация параметров аугментации
 int c_prepare_iteration(lua_State *L)
 {
     srand(time(0));
-    
+
     // Перемешивание порядка подачи элементов выборки
     std::random_shuffle(rand_ind.begin(), rand_ind.end());
 
@@ -115,6 +117,29 @@ int c_get_data(lua_State *L)
     return 0;
 }
 
+// Передача обработанных данных выборки для тестирования
+int c_get_test_data(lua_State *L)
+{
+    // Получаем данные
+    const int i = lua_tonumber(L, 1);
+    const int j = lua_tonumber(L, 2);
+    const THFloatTensor* const output_img  = static_cast<THFloatTensor*>(luaT_toudata(L, 3, "torch.FloatTensor"));
+    const THFloatTensor* const output_pts  = static_cast<THFloatTensor*>(luaT_toudata(L, 4, "torch.FloatTensor"));
+
+    const int n = wlp_size + i + j - 2;
+
+    cv::Mat src = images.at(n);
+    src.convertTo(src, CV_32FC1);
+
+    vector<cv::Point2f> pts = points.at(n);
+
+    // Записываем обработанные данные в Tensor-ы
+    write_cv_mat2tensor(src, output_img);
+    write_vector_point2tensor(pts, output_pts);
+
+    return 0;
+}
+
 // Тест - проверим, загрузится ли какое-либо изображение с точками правильно
 // передадим его в lua-код и проверим
 int hello(lua_State *L)
@@ -131,7 +156,7 @@ int hello(lua_State *L)
     write_cv_mat2tensor(src, output_img);
 
     // Определяем область памяти, куда нужно вернуть точки
-    THFloatTensor* output_pts  = static_cast<THFloatTensor*>(luaT_toudata(L, 2, "torch.FloatTensor"));
+    THFloatTensor* output_pts = static_cast<THFloatTensor*>(luaT_toudata(L, 2, "torch.FloatTensor"));
     // Загружаем сами точки
     vector<cv::Point2f> pts = points.at(n);
     // Загружаем вектор точек в нужную область памяти
@@ -162,6 +187,12 @@ int luaopen_data300wlp(lua_State *L)
             L,
             "c_get_data",
             c_get_data
+    );
+
+    lua_register(
+            L,
+            "c_get_test_data",
+            c_get_test_data
     );
 
 	lua_register(
