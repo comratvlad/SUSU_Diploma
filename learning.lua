@@ -15,20 +15,21 @@ require 'torch'
 require 'optim'
 require 'nn'
 
--- Параметры обучения
-local count = c_init()
+local count, test_count = c_init()
+print('Данные выборки загружены...')
 local batchsize = 16
 local rows = 210
 local cols = 210
-local epoch = 5
+local epoch = 15
 local net = model.createSimple300wlpCNN()
-local criterion = nn.AbsCriterion()
-local optimState = {learningRate = 0.1,
+local criterion = nn.MSECriterion()
+local optimState = {
+                    learningRate = 1.0,
                     weightDecay = 1e-6,
                     momentum = 0.9
-}
-
+                    }
 local parameters,gradParameters = net:getParameters()
+
 
 print('Начинаем обучение...')
 
@@ -55,6 +56,11 @@ for it=1,epoch do
         input =input:double()/255.0
         target = target:double()/210.0
 
+        --for j=1,batchsize do
+         --   dfun.showPointedPic(input[j], target[j]*210.0)
+         --   io.read()
+        --end
+
         -- Непосредственно обучение
         local feval = function(x)
 
@@ -76,9 +82,41 @@ for it=1,epoch do
         optim.sgd(feval, parameters, optimState)
 
     end
+
+    -- Тест
+    local test_result = 0.0
+    local crit = nn.MSECriterion()
+    for i=1,test_count,batchsize do
+
+        -- Выделение памяти
+        local input = torch.FloatTensor(batchsize, 1, rows, cols)
+        local target = torch.FloatTensor(batchsize, 2, 68)
+
+        -- Получение подготовленных данных выборки
+        for j=1,batchsize do
+            c_get_test_data(i, j, input[j], target[j])
+        end
+
+        local result = net:forward(input:double()/255.0)*210.0
+
+        test_result = test_result + crit:forward(result, target:double())
+
+    end
+    print('Результат тестирования = ', test_result)
+
+    -- Основываясь на результатах теста - меняем шаг
+    print('Новый шаг:')
+    new_rate = io.read()
+    if (new_rate == 'end') then break end
+    optimState = {learningRate = tonumber(new_rate),
+        weightDecay = 1e-6,
+        momentum = 0.9
+    }
+
 end
 
+-- Сохранение результатов
 print('Обучение завершено, сохраняем результат...')
-torch.save('net/simple300wlpCNN.t7', net)
+torch.save('net/simple300wlpVer1CNN.t7', net)
 print('Готово')
 
