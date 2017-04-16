@@ -96,22 +96,33 @@ function model.createSimple300wlpCNN()
 
     net = nn.Sequential()
 
-    net:add(nn.SpatialConvolutionMM(1, 16, 3, 3))
-
+    net:add(nn.SpatialConvolutionMM(1, 4, 3, 3))
+    net:add(nn.SpatialBatchNormalization(4))
     net:add(nn.ReLU(false))
     net:add(nn.SpatialMaxPooling(2, 2, 2, 2))
 
-    net:add(nn.SpatialConvolutionMM(16, 32, 3, 3))
+    net:add(nn.SpatialConvolutionMM(4, 8, 3, 3))
+    net:add(nn.SpatialBatchNormalization(8))
     net:add(nn.ReLU(false))
     net:add(nn.SpatialMaxPooling(2, 2, 2, 2))
 
-    net:add(nn.View(32*51*51))
+    net:add(nn.SpatialConvolutionMM(8, 16, 3, 3))
+    net:add(nn.SpatialBatchNormalization(16))
+    net:add(nn.ReLU(false))
+    net:add(nn.SpatialMaxPooling(2, 2, 2, 2))
+
+    net:add(nn.View(16*24*24))
     net:add(nn.Dropout(0.4))
 
-    net:add(nn.Linear(32*51*51, 200))
-    net:add(nn.BatchNormalization(200));
+    net:add(nn.Linear(16*24*24, 4096))
+    net:add(nn.BatchNormalization(4096))
     net:add(nn.ReLU(false))
-    net:add(nn.Linear(200, 2*68))
+
+    net:add(nn.Linear(4096, 512))
+    net:add(nn.BatchNormalization(512))
+    net:add(nn.ReLU(false))
+
+    net:add(nn.Linear(512, 2*68))
     net:add(nn.View(2,68))
 
     return net
@@ -164,7 +175,7 @@ function model.makeDeep300wlpCNN(mm)
     result.network:add(nn.Linear(128, 2*68));
     result.network:add(nn.View(2, 68));
 
-    local x = torch.Tensor():randn(8, (SOURCE_CHANNELS_COUNT or 1), 96, 96)
+    local x = torch.Tensor():randn(16, (SOURCE_CHANNELS_COUNT or 1), 210, 210)
 
     result.input_size = drop_minibatch_size( x:size() )
     result.output_size = drop_minibatch_size( result.network:forward(x):size() )
