@@ -1,8 +1,10 @@
+-- =======================================================
+-- dfun.lua
 --
--- Пока что тут полно полезных функций
+-- Набор вспомогательных lua функций для работы
 --
+-- =========================================================
 
-local mat = require 'matio'
 local image = require 'image'
 local torch = require 'torch'
 
@@ -49,7 +51,11 @@ function dfun.getPointedPic(pic, points, opt)
 
     -- Нанесение точек
     for i=1,num_points do
-        c_pic = image.drawText(c_pic, 'o', points[1][i] - 5, points[2][i] - 5, opt)
+        local x = points[1][i] - 5
+        local y = points[2][i] - 5
+        if (x < rows and x > 0 and y < cols and y > 0) then
+            c_pic = image.drawText(c_pic, '.', x, y, opt)
+        end
     end
 
     -- Возвращение изображения
