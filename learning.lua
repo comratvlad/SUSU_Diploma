@@ -20,14 +20,14 @@ print('Данные выборки загружены...')
 local batchsize = 16
 local rows = 210
 local cols = 210
-local epoch = 15
+local epoch = 10
 local net = model.createSimple300wlpCNN()
 local criterion = nn.MSECriterion()
 local optimState = {
-                    learningRate = 1.0,
-                    weightDecay = 1e-6,
-                    momentum = 0.9
-                    }
+    learningRate = 2.5,
+    weightDecay = 1e-6,
+    momentum = 0.9
+}
 local parameters,gradParameters = net:getParameters()
 
 
@@ -57,8 +57,8 @@ for it=1,epoch do
         target = target:double()/210.0
 
         --for j=1,batchsize do
-         --   dfun.showPointedPic(input[j], target[j]*210.0)
-         --   io.read()
+        --   dfun.showPointedPic(input[j], target[j]*210.0)
+        --   io.read()
         --end
 
         -- Непосредственно обучение
@@ -85,7 +85,6 @@ for it=1,epoch do
 
     -- Тест
     local test_result = 0.0
-    local crit = nn.MSECriterion()
     for i=1,test_count,batchsize do
 
         -- Выделение памяти
@@ -99,8 +98,9 @@ for it=1,epoch do
 
         local result = net:forward(input:double()/255.0)*210.0
 
-        test_result = test_result + crit:forward(result, target:double())
-
+        for j=1,batchsize do
+            test_result = test_result + dfun.e_norm(result[j], target:double()[j])
+        end
     end
     print('Результат тестирования = ', test_result)
 
@@ -119,4 +119,3 @@ end
 print('Обучение завершено, сохраняем результат...')
 torch.save('net/simple300wlpVer1CNN.t7', net)
 print('Готово')
-
