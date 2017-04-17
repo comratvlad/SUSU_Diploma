@@ -51,8 +51,8 @@ function dfun.getPointedPic(pic, points, opt)
 
     -- Нанесение точек
     for i=1,num_points do
-        local x = points[1][i] - 5
-        local y = points[2][i] - 5
+        local x = points[1][i] - 3
+        local y = points[2][i] - 3
         if (x < rows and x > 0 and y < cols and y > 0) then
             c_pic = image.drawText(c_pic, '.', x, y, opt)
         end
@@ -122,6 +122,24 @@ function dfun.cutPic(width, height, pic, points)
     respoints[2] = respoints[2] - y1
 
     return respic, respoints
+
+end
+
+--
+function dfun.e_norm(a, b)
+
+    assert(a:dim() == b:dim())
+    assert(a:size()[1] == 2)
+
+    local dx = (a[1] - b[1])
+    local dy = (a[2] - b[2])
+
+    dx = torch.pow(dx, 2)
+    dy = torch.pow(dy, 2)
+
+    local res = torch.sqrt(dx + dy)
+
+    return torch.sum(res)
 
 end
 
