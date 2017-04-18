@@ -20,7 +20,7 @@ print('Данные выборки загружены...')
 local batchsize = 16
 local rows = 210
 local cols = 210
-local epoch = 10
+local epoch = 100
 local net = model.createSimple300wlpCNN()
 local criterion = nn.MSECriterion()
 local optimState = {
