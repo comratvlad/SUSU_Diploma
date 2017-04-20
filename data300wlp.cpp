@@ -19,8 +19,8 @@ vector< vector<cv::Point2f> > points;
 
 // Параметры обучения
 const char cpp_data_path[] = "/home/vladislav/CLionProjects/LuaTorchProjects/DataLoadProject/300wlp(gray).dat";
-const int wlp_size = 16000;
-const int test_size = 1600;
+const int wlp_size = 56000;
+const int test_size = 320;
 
 // Рандомизируемые параметры аугментации
 std::vector<int> rand_ind(wlp_size);    // Случайный порядок подачи элементов выборки
