@@ -15,6 +15,10 @@ require 'torch'
 require 'optim'
 require 'nn'
 
+require 'cunn'
+require 'cutorch
+require 'cudnn'
+
 local count, test_count = c_init()
 print('Данные выборки загружены...')
 local batchsize = 16
@@ -24,7 +28,7 @@ local epoch = 100
 local net = model.createSimple300wlpCNN()
 local criterion = nn.MSECriterion()
 local optimState = {
-    learningRate = 2.5,
+    learningRate = 0.1,
     weightDecay = 1e-6,
     momentum = 0.9
 }
@@ -116,6 +120,7 @@ for it=1,epoch do
 end
 
 -- Сохранение результатов
-print('Обучение завершено, сохраняем результат...')
-torch.save('net/simple300wlpVer1CNN.t7', net)
+print('Обучение завершено, сохранять результат?')
+local answer = io.read()
+if answer == 'yes' then torch.save('net/simple300wlpVer22CNN.t7', net) end
 print('Готово')
