@@ -15,12 +15,13 @@ require 'torch'
 require 'optim'
 require 'nn'
 
-require 'cudnn'
 require 'cunn'
 require 'cutorch'
 require 'xlua'
 
 torch.setdefaulttensortype('torch.FloatTensor');
+
+-- =========================================================
 
 -- Инициализация выборки
 local count, test_count = c_init()
@@ -45,7 +46,7 @@ criterion:cuda()
 
 local parameters, gradParameters = net:getParameters()
 
--- -- Выделение памяти
+-- Выделение памяти
 local input = torch.FloatTensor(batchsize, 1, rows, cols)
 local target = torch.FloatTensor(batchsize, 2, 68)
 local input_c = torch.CudaTensor(batchsize, 1, rows, cols)
@@ -53,10 +54,13 @@ local target_c = torch.CudaTensor(batchsize, 2, 68)
 local result = torch.FloatTensor(batchsize, 2, 68)
 
 print('Начинаем обучение...')
+-- =========================================================
 
 -- Обучение
 for it=1,epoch do
 
+    -- =========================================================
+    -- Начало эпохи обучения
     print('Эпоха = ' .. it)
 
     -- Подготовление данных выборки (в т.ч. аугментация)
@@ -105,6 +109,8 @@ for it=1,epoch do
     end
 
     xlua.progress(count, count)
+    -- Конец эпохи обучения
+    -- =========================================================
 
     -- Тест
     xlua.progress(0, test_count)
@@ -134,10 +140,8 @@ for it=1,epoch do
     end
 
     xlua.progress(test_count, test_count)
-
     print('Результат тестирования = ', test_result)
-
-    collectgarbage();
+    collectgarbage()
 
     -- Основываясь на результатах теста - меняем шаг
     print('Новый шаг:')
@@ -150,6 +154,7 @@ for it=1,epoch do
     }
 
 end
+-- =========================================================
 
 -- Сохранение результатов
 print('Обучение завершено, сохранять результат?')
@@ -158,3 +163,4 @@ if (answer == 'yes') then
     torch.save('net/simple300wlpVer22CNN.t7', net)
 end
 print('Готово')
+-- =========================================================
