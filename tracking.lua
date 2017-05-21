@@ -61,8 +61,6 @@ while true do
     local y2 = real_points[2][4]
     back:div(255.0)
     result_frame = dfun.getRectangledPic(back, x1, y1, x2, y2)
-    --result_frame_1 = dfun.getRectangledPic(result_frame, track_x, track_y, track_x + track_height, track_y + track_height, {lineWidth = 1, color = {255, 0, 0}})
-    --result_frame = dfun.getPointedPic(result_frame, real_points, {color = {255, 0, 0},  size = 2 })
     d = image.display{image=result_frame, win=d, zoom=1 }
 
 end
