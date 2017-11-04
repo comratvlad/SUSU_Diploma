@@ -144,7 +144,7 @@ int c_get_test_data(lua_State *L)
 // передадим его в lua-код и проверим
 int hello(lua_State *L)
 {
-    // Номер изображение
+    // Номер изображения
     int n = 77;
 
     // Определяем область памяти, куда нужно вернуть картинку
@@ -160,8 +160,6 @@ int hello(lua_State *L)
     // Загружаем сами точки
     vector<cv::Point2f> pts = points.at(n);
     // Загружаем вектор точек в нужную область памяти
-    // write_vector_point2tensor - функция, добавленная в c_f_common.h
-    // ее код закомментирован в конце файла
     write_vector_point2tensor(pts, output_pts);
 
 	return 0;
